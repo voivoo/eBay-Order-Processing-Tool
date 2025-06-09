@@ -66,13 +66,26 @@ Monitor Progress: The "Information display" area at the bottom of the window wil
 
 Project Structure
 .
-├── your_script_name.py  # Main application script
+├── eBay Order Processing Tool.py  # 主程序文件
 ├── config/              # (Automatically created) Directory for configuration files
-│   └── your_script_name.json # Stores saved user preferences (except token)
+│   └── eBay Order Processing Tool.json # 存储用户首选项（不包含令牌）
 └── README.md            # This file
 
-Logic Overview
-The script follows these main steps:
+## 项目概述
+这是一个用于处理eBay订单的Python工具，主要功能包括：
+- 通过eBay Fulfillment API获取订单数据
+- 处理订单SKU转换逻辑
+- 生成Excel格式的订单报告
+
+## 使用说明
+1. 运行 `eBay Order Processing Tool.py`
+2. 在界面中输入eBay API令牌
+3. 设置日期范围和订单数量限制
+4. 点击"获取订单"按钮
+5. 处理完成后会自动打开生成的Excel文件
+
+## 技术实现
+主要实现步骤：
 
 Configuration Management: Loads and saves user preferences (token excluded for security) to a platform-specific JSON file.
 
