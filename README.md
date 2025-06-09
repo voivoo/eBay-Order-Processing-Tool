@@ -76,8 +76,6 @@ The information display area at the bottom shows:
 ```
 .
 ├── eBay Order Processing Tool.py  # Main application script
-├── config/                      # (Automatically created) Directory for configuration files
-│   └── config.json              # Stores application settings (except token)
 └── README.md                    # This file
 ```
 
