@@ -440,7 +440,6 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
     # 迭代订单信息列表
     for order_info in sorted_uncanceled_orders_list:
         sku = order_info["sku"]
-        # print(sku)
         if sku:
 
             # Zuerst prüfen, ob die SKU mit 'NF' endet
@@ -501,38 +500,57 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
             # Wenn keine SKU vorhanden ist, Bestellinformationen unverändert lassen
             processed_orders_list.append(order_info)
 
-    # Verarbeitete Bestellinformationen ausgeben
-    print("Die folgenden Bestellungen wurden für den Export nach Excel vorbereitet:")
-    for order_info in processed_orders_list:
-        print(order_info)
-    print()  # Leerzeile zur besseren Lesbarkeit
-
-    """
-    Vier。 Informationen in EXCEL-Datei schreiben
-    1. Excel-Tabelle durchsuchen und Bestellnummern (Spalte H) in einer Menge speichern
-    2. Bestellungen aus der Menge processed_orders_list entfernen, die bereits in der Excel-Tabelle vorhanden sind
-    3. Restliche Bestellungen in Excel-Tabelle schreiben
-    """
-
     # Funktion zum Laden der Excel-Tabelle und Rückgabe der Bestellnummern
     def load_order_ids_from_excel(file_path, sheet_name):  # Parameter: Excel-Dateipfad und Arbeitsblattname
-        workbook = openpyxl.load_workbook(file_path)
-        sheet = workbook[sheet_name]
-        order_ids = set()
-        for row in sheet.iter_rows(min_row=2, max_col=8, max_row=sheet.max_row, values_only=True):
-            order_ids.add(row[7])  # Bestellnummer ist in Spalte H (Index 7)
-        return order_ids
+        try:
+            workbook = openpyxl.load_workbook(file_path)
+            sheet = workbook[sheet_name]
+            order_ids = set()
+            for row in sheet.iter_rows(min_row=2, max_col=8, max_row=sheet.max_row, values_only=True):
+                if row and len(row) > 7 and row[7]:  # Überprüfen, ob die Zeile und Spalte H existieren
+                    order_ids.add(str(row[7]))
+            return order_ids
+        except Exception as e:
+            info_text.insert(tk.END, f"Fehler beim Lesen der Excel-Datei: {str(e)}\n")
+            return set()
 
-    # Bestellnummern aus der Excel-Tabelle laden
+    # Excel-Datei laden und Bestellnummern abrufen
     excel_order_ids = load_order_ids_from_excel(excel_path, worksheet_name)
+
+    # Statistik-Informationen
+    total_orders = len(orders)  # Gesamtzahl der Bestellungen aus der API-Antwort
+    uncanceled_orders = len(uncanceled_orders_list)  # Anzahl der nicht stornierten Bestellungen
+    cancelled_orders = total_orders - uncanceled_orders  # Anzahl der stornierten Bestellungen
 
     # Bereits in der Excel-Tabelle vorhandene Bestellungen aus processed_orders_list entfernen
     processed_orders_list = [order for order in processed_orders_list if order['order_id'] not in excel_order_ids]
 
-    # Bereinigte Bestellliste ausgeben
-    print("Bereinigte Bestellliste (bereits in Excel vorhandene Bestellungen wurden entfernt):")
-    for order_info in processed_orders_list:
-        print(order_info)
+    # Doppelte und neue Bestellungen zählen
+    all_order_ids = set(order['order_id'] for order in uncanceled_orders_list)  # 所有未取消的订单ID
+    existing_orders_in_excel = len(excel_order_ids)  # Excel中已存在的订单总数
+    
+    # 计算重复订单（在Excel中已存在的订单）
+    duplicate_orders = len(all_order_ids.intersection(excel_order_ids))
+    # 计算新订单（不在Excel中的订单）
+    new_orders = len(all_order_ids - excel_order_ids)
+
+    # Statistik im GUI-Fenster anzeigen
+    info_text.insert(tk.END, "\n=== Bestellstatistik ===\n")
+    info_text.insert(tk.END, f"Gesamte Bestellungen: {total_orders}\n")
+    info_text.insert(tk.END, f"Davon storniert: {cancelled_orders}\n")
+    info_text.insert(tk.END, f"Verfügbare Bestellungen: {uncanceled_orders}\n")
+    info_text.insert(tk.END, f"Bereits in Excel vorhanden: {duplicate_orders}\n")
+    info_text.insert(tk.END, f"Neue Bestellungen: {new_orders}\n")
+    info_text.insert(tk.END, "=" * 50 + "\n")
+
+    """
+    Vier. Informationen in EXCEL-Datei schreiben
+    1. Excel-Tabelle durchsuchen und Bestellnummern (Spalte H) in einer Menge speichern
+    2. Bestellungen aus der Menge processed_orders_list entfernen, die bereits in der Excel-Tabelle vorhanden sind
+    3. Restliche Bestellungen in Excel-Tabelle schreiben
+    """
+    
+    # Bereits in processed_orders_list sind nur die Bestellungen, die noch nicht in Excel sind
 
     # Funktion zum Schreiben in die Excel-Datei definieren
     def write_orders_to_excel(orders_list, file_path):  # Eingabeparameter: Bestellliste und Excel-Dateipfad
@@ -581,7 +599,7 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
 
         # Excel-Datei speichern
         workbook.save(file_path)
-        info_text.insert(tk.END, f"\nBestellverarbeitung erfolgreich abgeschlossen!")
+        info_text.insert(tk.END, f"\nBestellverarbeitung abgeschlossen!")
 
     # Funktion aufrufen, um Bestellungen in die Excel-Datei zu schreiben
     write_orders_to_excel(processed_orders_list, excel_path)
