@@ -44,15 +44,14 @@ Prepare your Excel File: Make sure you have an Excel file (.xlsx format) ready w
 
 Run the Script:
 
-python your_script_name.py
-
-(Replace your_script_name.py with the actual name of your Python file, e.g., ebay_order_tool.py)
+python eBay Order Processing Tool.py
 
 Fill in the GUI:
 
 eBay access token: Paste your eBay access token into the large text field.
 
 ### Input Fields
+- **eBay access token**: Paste your eBay access token into the large text field.
 - **Order Days**: Number of past days to fetch orders from (e.g., 3 for the last 3 days)
 - **Orders Limit**: Maximum number of orders to retrieve (e.g., 100)
 - **Target Excel File**: Click "Browse" to select an Excel file or enter the full path
@@ -89,7 +88,7 @@ A Python tool for processing eBay orders with the following features:
 1. Run `eBay Order Processing Tool.py`
 2. Enter your eBay API token in the interface
 3. Set the date range and order limit
-4. Click the "Fetch Orders" button
+4. Click the "Start Processing" button
 5. The generated Excel file will open automatically upon completion
 
 ## Technical Implementation
