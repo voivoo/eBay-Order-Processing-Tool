@@ -52,40 +52,50 @@ Fill in the GUI:
 
 eBay access token: Paste your eBay access token into the large text field.
 
-Order days: Enter the number of past days you want to fetch orders from (e.g., 3 for the last 3 days).
+### Input Fields
+- **Order Days**: Number of past days to fetch orders from (e.g., 3 for the last 3 days)
+- **Orders Limit**: Maximum number of orders to retrieve (e.g., 100)
+- **Target Excel File**: Click "Browse" to select an Excel file or enter the full path
+- **Worksheet Name**: Name of the worksheet for data export (e.g., Sheet1 or Orders)
 
-Orders limit: Enter the maximum number of orders you want to retrieve (e.g., 100).
+### Processing
+1. Click "Start Processing" to begin
+2. The application will:
+   - Fetch orders from eBay API
+   - Process SKUs according to business rules
+   - Generate an Excel report
+   - Open the report automatically when complete
 
-Target Excel file path: Click the "Browse" button to select your Excel file, or manually enter its full path.
+### Progress Monitoring
+The information display area at the bottom shows:
+- Processing status
+- Success/failure messages
+- Any errors encountered
 
-Worksheet name: Enter the exact name of the worksheet where the data should be written (e.g., Sheet1 or Bestellungen).
-
-Start Processing: Click the "Start processing" button. The application will fetch orders, process them according to the defined logic, and write them into your Excel file.
-
-Monitor Progress: The "Information display" area at the bottom of the window will show the processing status and any messages or errors.
-
-Project Structure
+## Project Structure
+```
 .
-├── eBay Order Processing Tool.py  # 主程序文件
-├── config/              # (Automatically created) Directory for configuration files
-│   └── eBay Order Processing Tool.json # 存储用户首选项（不包含令牌）
-└── README.md            # This file
+├── eBay Order Processing Tool.py  # Main application script
+├── config/                      # (Automatically created) Directory for configuration files
+│   └── config.json              # Stores application settings (except token)
+└── README.md                    # This file
+```
 
-## 项目概述
-这是一个用于处理eBay订单的Python工具，主要功能包括：
-- 通过eBay Fulfillment API获取订单数据
-- 处理订单SKU转换逻辑
-- 生成Excel格式的订单报告
+## Project Overview
+A Python tool for processing eBay orders with the following features:
+- Fetch order data via eBay Fulfillment API
+- Process order SKU transformation logic
+- Generate Excel order reports
 
-## 使用说明
-1. 运行 `eBay Order Processing Tool.py`
-2. 在界面中输入eBay API令牌
-3. 设置日期范围和订单数量限制
-4. 点击"获取订单"按钮
-5. 处理完成后会自动打开生成的Excel文件
+## Usage Instructions
+1. Run `eBay Order Processing Tool.py`
+2. Enter your eBay API token in the interface
+3. Set the date range and order limit
+4. Click the "Fetch Orders" button
+5. The generated Excel file will open automatically upon completion
 
-## 技术实现
-主要实现步骤：
+## Technical Implementation
+Main implementation steps:
 
 Configuration Management: Loads and saves user preferences (token excluded for security) to a platform-specific JSON file.
 
