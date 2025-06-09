@@ -226,7 +226,7 @@ def main():
 
     # Einen Textbereich zur Anzeige von Informationen erstellen
     global info_text
-    info_text = tk.Text(info_frame, wrap=tk.WORD, width=width, height=10, borderwidth=2)
+    info_text = tk.Text(info_frame, wrap=tk.WORD, width=width, height=height, borderwidth=2)
     info_text.pack(padx=10, pady=10)
 
     # Kontextmenü für Rechtsklick zum Kopieren des Textes aktivieren
@@ -308,7 +308,10 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
         # print(orders) # Zum Debuggen: Bestellinformationen anzeigen
 
         # Jede Bestellung mit getOrder durchlaufen
-        for order in orders:
+        info_text.insert(tk.END, "\n=== Abgerufene Bestellungen ===\n")
+        console_output = []
+        
+        for index, order in enumerate(orders, 1):
             order_id = order.get("orderId")
             # Empfänger- und Adressinformationen der Bestellung abrufen
             url_get_order = f"https://api.ebay.com/sell/fulfillment/v1/order/{order_id}"
@@ -316,11 +319,13 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
 
             if response_get_order.status_code == 200:
                 order_details = response_get_order.json()
-                print(order_details)
+                order_info = f"{index}. Bestellnummer: {order_id}"
+                info_text.insert(tk.END, order_info + "\n")
+                console_output.append(order_info)
+                
+                # Bestelldetails verarbeiten
                 shipping_step = order_details.get('fulfillmentStartInstructions', [{}])[0].get('shippingStep', {})
                 ship_to = shipping_step.get('shipTo', {})
-                # creationDate = order_details.get('creationDate', 'Nicht angegeben')[:10]  # Nur das Datumsteil abrufen, also bis zum Tag abschneiden
-                # Das vollständige Datum einschließlich der Uhrzeit abrufen, um Bestellungen am selben Tag von der ältesten zur neuesten zu sortieren
                 creationDate = order_details.get('creationDate', 'Nicht angegeben')
                 order_fulfillment_status = order_details.get('orderFulfillmentStatus', 'Nicht angegeben')
                 cancel_status = order_details.get('cancelStatus', {}).get('cancelState', 'Nicht angegeben')
@@ -342,12 +347,10 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
                 for item in item_info:
                     sku = item.get('sku', 'Nicht angegeben')
                     quantity = item.get('quantity', 'Nicht angegeben')
+                    
                     # Der von EBAY erhaltene Preis ist ein String und muss in einen Float-Typ umgewandelt werden, um mathematische Berechnungen durchführen zu können
-                    # price_str = item.get('lineItemCost', {}).get('value', 'Nicht angegeben')  # Ursprünglicher Preis
-                    # Die folgende Zeile gibt den rabattierten Preis zurück, also den endgültigen Verkaufspreis
-                    price_str = item.get('total', {}).get('value', '未提供')
-                    # Preis in den Float-Typ umwandeln
-                    price = float(price_str)
+                    price_str = item.get('discountedLineItemCost', {}).get('value', 'Nicht angegeben')  # Rabattierter Preis
+                    price = float(price_str) if price_str != 'Nicht angegeben' and price_str is not None else 0.0
 
                     # Bestellinformationen als Wörterbuch speichern
                     order_info = {
@@ -377,17 +380,8 @@ def process_orders(token, days, orders_limit, excel_path, worksheet_name):
         print(f"Fehler beim Abrufen der Bestellliste, Statuscode: {response_get_orders.status_code}")
         info_text.insert(tk.END, f"Fehler beim Abrufen der Bestellliste, Statuscode: {response_get_orders.status_code}\n")
 
-    # Bestellinformationen in der Konsole ausgeben
-    print("Alle abgerufenen Bestellungen:")
-    for order_info in orders_list:
-        print(order_info)
-    print()  # Leerzeile zur besseren Lesbarkeit
-
-    # Bestellinformationen im UI-Informationsfenster anzeigen
-    info_text.insert(tk.END, "Alle abgerufenen Bestellungen:\n")
-    for order_info in orders_list:
-        info_text.insert(tk.END, str(order_info) + "\n")
-    info_text.insert(tk.END, "\n")  # Leerzeile zur besseren Lesbarkeit
+    # Bestellinformationen in der Konsole und UI anzeigen (bereits oben in der Funktion erfolgt)
+    # Hier keine zusätzliche Ausgabe mehr, um Duplikate zu vermeiden
 
     """
     2. Die erhaltene Informationsliste weiterverarbeiten, zuerst stornierte Bestellungen entfernen, dann nach Datum von der ältesten zur neuesten sortieren
