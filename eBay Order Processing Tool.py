@@ -23,7 +23,7 @@ class PlaceholderEntry(ttk.Entry):
         """Entfernt den Platzhalter bei Fokus."""
         if self.get() == self.placeholder:
             self.delete('0', 'end')
-            self.configure(foreground='black')
+            self.configure(foreground='white')
 
     def _add_placeholder(self, e):
         """Fügt den Platzhalter wieder ein, wenn das Feld leer ist."""
@@ -150,7 +150,7 @@ def main():
     if "days" in config and config["days"]:
         days_entry.delete(0, 'end')
         days_entry.insert(0, config["days"])
-        days_entry.configure(foreground='black')
+        days_entry.configure(foreground='white')
     days_entry.grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
     # Label und Eingabefeld für die maximale Anzahl der Bestellungen erstellen
@@ -165,7 +165,7 @@ def main():
     if "orders_limit" in config and config["orders_limit"]:
         orders_entry.delete(0, 'end')
         orders_entry.insert(0, config["orders_limit"])
-        orders_entry.configure(foreground='black')
+        orders_entry.configure(foreground='white')
     orders_entry.grid(row=0, column=1, sticky="ew", padx=(10, 0))
 
     # Label für "Ziel-Excel-Dateipfad" erstellen
